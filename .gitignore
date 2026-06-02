@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.jpg
+*.jpeg
+*.png
+fond.jpg
+fond2_interne.jpg
+loadtest.js
