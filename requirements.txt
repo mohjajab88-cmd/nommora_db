@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+asyncpg
+bcrypt
+python-jose
+pydantic
+email-validator
+slowapi
+tenacity
+redis
+sentry-sdk
+httpx
