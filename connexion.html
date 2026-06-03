@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NØMMORA — Authentification</title>
+    <style>
+        #splashScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('fond.jpg');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+        body {
+            background: linear-gradient(135deg, #060e19 0%, #0B1A2D 60%, #172537 100%) !important;
+            background-attachment: fixed !important;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 60px 20px; min-height: 100vh; margin: 0; box-sizing: border-box;
+        }
+        .main-content {
+            opacity: 0; display: flex; flex-direction: column; align-items: center; width: 100%;
+            transition: opacity 0.8s ease-in;
+        }
+        .logo-ao {
+            font-size: 4rem; font-weight: 200; letter-spacing: 0.5rem; color: #C8A44E;
+            text-shadow: 0 0 20px rgba(200, 164, 78, 0.4); margin: 0 0 5px 0;
+        }
+        .tagline {
+            font-size: 0.75rem; text-transform: uppercase; color: #94a3b8;
+            margin: 0 0 40px 0; letter-spacing: 0.2rem;
+        }
+        .container {
+            background-color: rgba(15, 23, 42, 0.85); padding: 2.5rem; border-radius: 1.75rem;
+            border: 1px solid rgba(200, 164, 78, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            width: 100%; max-width: 400px; text-align: center;
+            backdrop-filter: backdrop-blur(10px); -webkit-backdrop-filter: backdrop-blur(10px);
+        }
+        .or-text { color: #C8A44E; margin-top: 0; }
+        .btn-or {
+            background-color: #C8A44E; color: #0B1A2D; border: none; padding: 0.8rem;
+            width: 100%; border-radius: 0.8rem; font-weight: bold; cursor: pointer;
+            margin-top: 1rem; transition: 0.2s;
+        }
+        .btn-or:hover { background-color: #b08f40; }
+        input {
+            width: 100%; padding: 0.8rem; margin: 0.5rem 0; border-radius: 0.8rem;
+            border: 1px solid #334155; background: #0B1A2D; color: white; box-sizing: border-box;
+        }
+        .link-nav {
+            margin-top: 25px; color: #94a3b8; font-size: 0.9rem; text-decoration: none; cursor: pointer; display: block;
+        }
+        .link-nav:hover { color: #C8A44E; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="splashScreen"></div>
+
+    <div id="appContent" class="main-content">
+        
+        <h1 class="logo-ao">ÅØ</h1>
+        <div class="tagline">NØMMORA — DEVIENS LE CONTACT</div>
+
+        <div class="container">
+            <h2 class="or-text">🔑 Connexion Marchande</h2>
+            <form id="loginForm">
+                <input type="email" id="logEmail" placeholder="Votre clé d'accès (Email)" required>
+                <input type="password" id="logPassword" placeholder="Mot de passe crypté" required>
+                <button type="submit" class="btn-or">Accéder à l'infrastructure</button>
+            </form>
+            
+            <!-- LIEN RETOUR VERS L'INSCRIPTION SI PAS DE COMPTE -->
+            <a href="inscription.html" class="link-nav">Pas encore inscrit ? Créer un compte</a>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "http://127.0.0.1:8000";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.opacity = '0';
+                document.getElementById('splashScreen').style.visibility = 'hidden';
+                document.getElementById('appContent').style.opacity = '1';
+            }, 3000);
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${BACKEND_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('logEmail').value,
+                        password: document.getElementById('logPassword').value
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Sauvegarde du Token dans la session du navigateur
+                    sessionStorage.setItem("nommora_token", data.access_token);
+                    // Propulsion automatique vers le Tableau de Bord global
+                    window.location.href = "index.html";
+                } else { 
+                    alert("❌ Identifiants incorrects."); 
+                }
+            } catch (error) { 
+                alert("⚠️ Serveur FastAPI éteint."); 
+            }
+        });
+    </script>
+</body>
+</html>

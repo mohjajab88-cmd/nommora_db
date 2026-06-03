@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÅØ — Plateforme de Transactions</title>
+    
+    <!-- FIX SÉCURITÉ : LES VRAIES ADRESSES DU MOTEUR CARTOGRAPHIQUE LEAFLET -->
+    <link rel="stylesheet" href="https://unpkg.com" />
+    <script src="https://unpkg.com"></script>
+
+    <style>
+        /* VISUEL BANQUE PRIVÉE / HAUTE PERFORMANCE */
+        body {
+            margin: 0;
+            padding: 0;
+            color: #f8fafc; /* Blanc/Gris perle : Lisibilité maximale */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* Police moderne et ultra-lisible */
+            background-image: linear-gradient(180deg, rgba(11, 15, 23, 0.95) 0%, rgba(11, 15, 23, 0.97) 100%), url('/fond2_interne.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        /* 1. BARRE LATÉRALE DE CONTRÔLE SOBRE ET PRESTIGIEUSE */
+        .sidebar {
+            width: 75px;
+            background: #0b0f17; /* Noir mat profond */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            gap: 25px;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            border-right: 1px solid rgba(200, 164, 78, 0.25); /* Bordure or très fine */
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+        .nav-icon-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            width: 100%;
+            color: #64748b; /* Gris neutre discret */
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+        }
+        .nav-icon-box span:first-child {
+            font-size: 1.3rem;
+            margin-bottom: 4px;
+        }
+        .nav-icon-box span:last-child {
+            font-size: 0.55rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            text-align: center;
+        }
+        .nav-icon-box:hover, .nav-icon-box.active {
+            color: #C8A44E;
+        }
+
+        /* CONFIGURATION DU CONTENU DE DROITE */
+        .main-layout {
+            margin-left: 75px;
+            padding: 40px;
+            width: calc(100% - 75px);
+            box-sizing: border-box;
+            display: none; /* Verrouillé par Token JWT */
+            flex-direction: column;
+        }
+
+        /* EN-TÊTE SOBRE ET CLAIR */
+        .header-section {
+            margin-bottom: 35px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 20px;
+        }
+        .welcome-text { font-size: 0.75rem; letter-spacing: 0.15rem; color: #64748b; text-transform: uppercase; margin: 0; font-weight: 600; }
+        .logo-title { font-size: 2.6rem; font-weight: 300; letter-spacing: 0.3rem; color: #C8A44E; margin: 5px 0; }
+        .subtitle { font-size: 0.85rem; color: #94a3b8; margin: 0; }
+
+        /* BARRE DE RECHERCHE MINIMALISTE HAUT DE GAMME */
+        .search-bar-container {
+            display: flex;
+            align-items: center;
+            background: #0f172a;
+            border: 1px solid rgba(200, 164, 78, 0.3);
+            border-radius: 8px;
+            padding: 6px 15px;
+            max-width: 500px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px;
+            color: #f8fafc;
+            font-size: 0.9rem;
+        }
+        .search-input:focus { outline: none; }
+
+        /* CONTENEUR STYLE DE LUXE / SIMPLE ET EFFICACE */
+        .container {
+            background-color: rgba(15, 23, 42, 0.85);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(200, 164, 78, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* CHAMPS DE FORMULAIRES HARMONIEUX */
+        input, select {
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid #334155;
+            background: #0b0f17; 
+            color: #f8fafc; 
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: #C8A44E;
+            outline: none;
+        }
+        .btn-or {
+            background: #C8A44E;
+            color: #0b0f17;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+        .btn-or:hover { background: #b08f40; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(200, 164, 78, 0.1);
+            border: 1px solid #C8A44E;
+            color: #C8A44E;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── BARRE LATÉRALE DE CONTRÔLE SOBRE ET PRESTIGIEUSE ── -->
+    <div class="sidebar">
+        <div style="font-size: 1.4rem; font-weight: bold; color: #C8A44E; margin-bottom: 10px; cursor: default;">ÅØ</div>
+        
+        <div id="navSearch" class="nav-icon-box active" onclick="switchView('searchPage', 'navSearch')">
+            <span>🔍</span><span>Recherche</span>
+        </div>
+        <div id="navSteal" class="nav-icon-box" onclick="switchView('stealPage', 'navSteal')">
+            <span>💸</span><span>Steal</span>
+        </div>
+        <div id="navCruise" class="nav-icon-box" onclick="switchView('cruisePage', 'navCruise')">
+            <span>🌍</span><span>Cruise</span>
+        </div>
+        <div id="navVia" class="nav-icon-box" onclick="switchView('viaPage', 'navVia')">
+            <span>🔮</span><span>ÅØ.V.IA</span>
+        </div>
+        <div id="navProfile" class="nav-icon-box" onclick="switchView('myProfilePage', 'navProfile')">
+            <span>👤</span><span>Mon Profil</span>
+        </div>
+
+        <div onclick="deconnexionSouveraine()" class="nav-icon-box" style="margin-top: auto; margin-bottom: 25px; color:#f43f5e;">
+            <span>☀️</span><span>Quitter</span>
+        </div>
+    </div>
+
+    <!-- ZONE DE RENDU PRINCIPALE (FINANCE HAUTE PERFORMANCE) -->
+    <div id="appLayout" class="main-layout">
+        
+        <div class="header-section">
+            <p class="welcome-text">BIENVENUE SUR</p>
+            <h1 class="logo-title">ÅØ</h1>
+            <p class="subtitle">Infrastructure Numérique de Confiance. Flux de Capitaux Sécurisés.</p>
+        </div>
+
+        <div class="search-bar-container">
+            <span style="font-size: 1rem; color: #64748b;">🔍</span>
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="Sonder l'infrastructure (Ville ou TVA)...">
+            <span style="cursor: pointer; color: #C8A44E; font-weight: bold;" onclick="declencherRechercheGlobale()">➔</span>
+        </div>
+        <!-- ======================================================== -->
+        <!-- PAGE UNIQUE 1 : RECHERCHE (PRESTATAIRE & CONTACT)         -->
+        <!-- ======================================================== -->
+        <div id="searchPage" class="view-content" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="container">
+                <h2 style="color: #C8A44E; margin-top: 0; font-size: 1.25rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05rem;">Recherche Prestataire</h2>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: -5px; margin-bottom: 20px;">Sondage de l'écosystème commercial.</p>
+                <input type="text" id="cityInput" placeholder="Saisir la localité ou le n° de TVA">
+                <button class="btn-or" onclick="chercherPrestataire()">Exécuter l'analyse</button>
+                <div id="listeResultats" style="margin-top: 20px; text-align: left; max-height: 150px; overflow-y: auto; font-size: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 10px;"></div>
+            </div>
+
+            <div id="profileSection" class="container" style="border-color: #34d399; display: none;">
+                <h2 style="color: #34d399; margin-top: 0; font-size: 1.25rem; font-weight: 500; text-transform: uppercase;">Fiche Identité</h2>
+                <div id="profIdDisplay" style="font-size: 0.75rem; color: #64748b; word-break: break-all; width: 100%;">UUID: -</div>
+                <h3 id="profName" style="margin: 15px 0 5px 0; color: #fff; font-size: 1.4rem;">-</h3>
+                <span id="profStatus" class="badge" style="background: rgba(52, 211, 153, 0.1); border-color: #34d399; color: #34d399;">-</span>
+                <div style="margin-top: 15px; color: #C8A44E; font-size: 0.9rem;">Indice de Confiance : <b id="profScore" style="color: #fff;">- Pts</b></div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- PAGE UNIQUE 2 : STEAL (ARCHITECTURE ÉPURÉE ÅØ)          -->
+        <!-- ======================================================== -->
+        <div id="stealPage" class="view-content" style="display: none; flex-direction: column; align-items: center; width: 100%;">
+            <!-- SOUS-MENU HORIZONTAL ULTRA-FIN SANS ARTIFICE -->
+            <div style="display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 500px; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 12px; flex-wrap: wrap;">
+                <span id="subBtnHookup" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #C8A44E; transition: 0.2s;" onclick="switchStealSubTab('subHookupBox', 'subBtnHookup')">Hookup</span>
+                <span id="subBtnInit" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #64748b; transition: 0.2s;" onclick="switchStealSubTab('subInitBox', 'subBtnInit')">Initier</span>
+                <span id="subBtnRel" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #64748b; transition: 0.2s;" onclick="switchStealSubTab('subRelBox', 'subBtnRel')">Release</span>
+                <span id="subBtnRev" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #64748b; transition: 0.2s;" onclick="switchStealSubTab('subRevBox', 'subBtnRev')">Évaluer</span>
+                <span id="subBtnDisp" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #64748b; transition: 0.2s;" onclick="switchStealSubTab('subDispBox', 'subBtnDisp')">Litige</span>
+                <span id="subBtnChat" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #64748b; transition: 0.2s;" onclick="switchStealSubTab('subChatBox', 'subBtnChat')">Messages</span>
+                <span id="subBtnCoffre" style="cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08rem; color: #64748b; transition: 0.2s;" onclick="switchStealSubTab('subCoffreBox', 'subBtnCoffre')">Coffre</span>
+            </div>
+
+            <!-- CADRE CENTRAL UNIQUE -->
+            <div class="container">
+                 <!-- SECTION 0 : HOOKUP (VISIBLE PAR DÉFAUT POUR TOUTE NÉGOCIATION) -->
+                <div id="subHookupBox" class="steal-sub-view" style="display: flex; flex-direction: column;">
+                    <h3 style="color: #C8A44E; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">[ Hookup : Salon de Négociation ]</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Mise en relation multi-parties pour ajuster les termes du pacte d'affaires.</p>
+                    
+                    <div style="background: #0b0f17; padding: 15px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 15px; text-align: left; font-size: 0.85rem;">
+                        <div style="color: #64748b; font-weight: bold; margin-bottom: 5px;">🤝 ACTEURS INVITÉS AU SALON :</div>
+                        <div style="color: #f8fafc; line-height: 1.4;">
+                            • Client Émetteur (Alice)<br>
+                            • Prestataire Artisan (Marc)<br>
+                            • Arbitre Tiers (En attente d'attribution...)
+                        </div>
+                    </div>
+
+                    <form id="hookupForm">
+                        <input type="text" id="hookupRoomId" placeholder="Code unique de la session Hookup" required>
+                        <input type="number" id="hookupOffer" placeholder="Ajuster la proposition de cash (€)" required>
+                        <button type="submit" class="btn-or">Soumettre l'offre aux partenaires</button>
+                    </form>
+                    <div id="hookupMessage" style="margin-top: 15px; font-weight: bold; font-size: 0.8rem; display: none; color: #4ade80;"></div>
+                </div>
+
+                <!-- SECTION 1 : INITIER -->
+                <div id="subInitBox" class="steal-sub-view" style="display: flex; flex-direction: column;">
+                    <h3 style="color: #C8A44E; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">Initier un Pacte</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Engager un capital et ouvrir un dossier d'affaires sécurisé.</p>
+                    <form id="stealForm">
+                        <input type="text" id="stealProvider" placeholder="Identifiant Destinataire (UUID)" required>
+                        <input type="number" id="stealAmount" placeholder="Montant du contrat (€)" required>
+                        <button type="submit" class="btn-or">Sécuriser les fonds</button>
+                    </form>
+                    <div id="stealMessage" style="margin-top: 15px; font-weight: bold; font-size: 0.8rem; word-break: break-all; display: none; color: #4ade80;"></div>
+                </div>
+
+                <!-- SECTION 2 : RELEASE -->
+                <div id="subRelBox" class="steal-sub-view" style="display: none; flex-direction: column;">
+                    <h3 style="color: #10b981; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">Finaliser le Release</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Agréer les travaux. Débloquer le cash instantanément vers le prestataire.</p>
+                    <form id="releaseForm">
+                        <input type="text" id="relStealId" placeholder="Code du contrat soldé (UUID)" required>
+                        <button type="submit" class="btn-or" style="background: #10b981; color: #0b0f17;">Libérer la masse monétaire</button>
+                    </form>
+                    <div id="relMessage" style="margin-top: 15px; font-weight: bold; font-size: 0.8rem; display: none;"></div>
+                </div>
+
+                <!-- SECTION 3 : ÉVALUER -->
+                <div id="subRevBox" class="steal-sub-view" style="display: none; flex-direction: column;">
+                    <h3 style="color: #eab308; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">Évaluer l'œuvre</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Attribuer ou retirer les points d'influence d'un acteur.</p>
+                    <form id="reviewForm">
+                        <input type="text" id="revStealId" placeholder="Code du contrat agréé (UUID)" required>
+                        <input type="number" id="revRating" placeholder="Valuation du sérieux (1 à 5 Étoiles)" min="1" max="5" required>
+                        <div style="text-align: left; font-size: 0.75rem; margin: 15px 0; color: #94a3b8; display: flex; flex-direction: column; gap: 8px;">
+                            <label style="cursor: pointer;"><input type="checkbox" id="revInternal" checked style="width:auto; margin-right:8px;"> Certification Interne Réseau (x2.0)</label>
+                            <label style="cursor: pointer;"><input type="checkbox" id="revFull" style="width:auto; margin-right:8px;"> Cycle Intégral Nømmora (+10 Pts Bonus)</label>
+                        </div>
+                        <button type="submit" class="btn-or" style="background: #eab308; color: #0b0f17;">Sceller l'impact</button>
+                    </form>
+                    <div id="revMessage" style="margin-top: 15px; font-weight: bold; font-size: 0.8rem; display: none;"></div>
+                </div>
+
+                <!-- SECTION 4 : LITIGE -->
+                <div id="subDispBox" class="steal-sub-view" style="display: none; flex-direction: column;">
+                    <h3 style="color: #f87171; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">Gestion des Litiges</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Bloquer le transfert de capitaux pour anomalie ou manquement majeur.</p>
+                    <form id="disputeForm" style="margin-bottom: 25px;">
+                        <input type="text" id="dispTxId" placeholder="Code du pacte contesté (UUID)" required>
+                        <input type="text" id="dispReason" placeholder="Justification contractuelle" required>
+                        <button type="submit" class="btn-or" style="background: #f87171; color: #0b0f17;">Ouvrir la procédure litige</button>
+                    </form>
+                    <div id="dispMessage" style="margin-top: 15px; font-weight: bold; font-size: 0.8rem; display: none;"></div>
+
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; margin-top: 10px;">
+                        <h4 style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin: 0 0 10px 0; text-transform: uppercase;">Clause de Recours : Le Pardon</h4>
+                        <form id="resolveForm">
+                            <input type="text" id="resTxId" placeholder="Code du pacte en litige (UUID)" required>
+                            <button type="submit" class="btn-or" style="background: #a7f3d0; color: #0b0f17;">Restituer les capitaux et clore</button>
+                        </form>
+                        <div id="resMessage" style="margin-top: 15px; font-weight: bold; font-size: 0.8rem; display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5 : MESSAGES -->
+                <div id="subChatBox" class="steal-sub-view" style="display: none; flex-direction: column;">
+                    <h3 style="color: #C8A44E; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">Canal d'Affaire Secret</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Ligne directe privée et exclusive entre les parties contractantes.</p>
+                    <input type="text" id="chatStealId" placeholder="Code identifiant du contrat (UUID)" required>
+                    <button class="btn-or" onclick="ouvrirCanalDiscussion()">Déchiffrer la discussion</button>
+                    <div id="chatBox" style="background: #0b0f17; padding: 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); max-height: 150px; overflow-y: auto; display: none; flex-direction: column; gap: 8px; margin-bottom: 12px; text-align: left; font-size: 0.85rem;"></div>
+                    <form id="chatForm" style="display: none;">
+                        <input type="text" id="chatInput" placeholder="Transmettre une information cryptée..." required>
+                        <button type="submit" class="btn-or">Transmettre</button>
+                    </form>
+                </div>
+
+                <!-- SECTION 6 : COFFRE D'AFFAIRES -->
+                <div id="subCoffreBox" class="steal-sub-view" style="display: none; flex-direction: column;">
+                    <h3 style="color: #10b981; margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 500; text-transform: uppercase;">Mon Coffre-Fort</h3>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Registre exclusif de vos flux financiers rattachés à votre clé JWT.</p>
+                    <input type="text" id="myUserId" placeholder="Votre signature unique d'acteur (UUID)" required>
+                    <button class="btn-or" style="background: #10b981; color: #0b0f17;" onclick="chargerMonHistorique()">Ouvrir les archives privées</button>
+                    <div id="monHistListe" style="margin-top: 15px; max-height: 180px; overflow-y: auto; text-align: left; gap: 8px; display: flex; flex-direction: column; font-size: 0.85rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- PAGE UNIQUE 3 : CRUISE (TABLEAU DE BORD & CARTOGRAPHIE)  -->
+        <!-- ======================================================== -->
+        <div id="cruisePage" class="view-content" style="display: none; flex-direction: row; gap: 30px; width: 100%; max-width: 1200px; align-items: flex-start; justify-content: center;">
+            <div class="container" style="max-width: 400px; margin-bottom: 0;">
+                <h2 style="color: #C8A44E; margin-top: 0; font-size: 1.25rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05rem;">Comptabilité des Flux</h2>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: -5px; margin-bottom: 20px;">Agrégation mondiale des volumes de capitaux en transit.</p>
+                <button class="btn-or" onclick="chargerStatistiquesMonde()" style="margin-bottom: 15px;">Interroger les coffres globaux</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; font-size: 0.85rem;">
+                    <div style="background: #0b0f17; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px;"><small style="color: #64748b; font-weight: 600;">SÉCURISÉ (PENDING)</small><div id="statSecured" style="color:#C8A44E; font-weight:bold; font-size: 1.15rem; margin-top: 4px;">0.00 €</div></div>
+                    <div style="background: #0b0f17; padding: 12px; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px;"><small style="color: #64748b; font-weight: 600;">LIQUIDÉ (RELEASED)</small><div id="statReleased" style="color:#10b981; font-weight:bold; font-size: 1.15rem; margin-top: 4px;">0.00 €</div></div>
+                    <div style="background: #0b0f17; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px;"><small style="color: #64748b; font-weight: 600;">PACTES SIGNÉS</small><div id="statSteals" style="color:#f8fafc; font-weight:bold; font-size: 1.15rem; margin-top: 4px;">0</div></div>
+                    <div style="background: #0b0f17; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px;"><small style="color: #64748b; font-weight: 600;">ACTEURS RÉSEAU</small><div id="statUsers" style="color:#f8fafc; font-weight:bold; font-size: 1.15rem; margin-top: 4px;">0</div></div>
+                </div>
+            </div>
+            <!-- LE BLOC CONTENEUR DE LA CARTE DES RUES DU GLOBE -->
+            <div style="flex: 1; min-width: 500px; height: 420px; background: #0b0f17; border: 1px solid rgba(200, 164, 78, 0.3); border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; position: relative;">
+                <div id="mapInfrastructure" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- PAGE UNIQUE 4 : ÅØ.V.IA (NŒUD COGNITIF IA VOCALE)        -->
+        <!-- ======================================================== -->
+        <div id="viaPage" class="view-content" style="display: none; flex-direction: column; align-items: center;">
+            <div class="container" style="border-color: #a855f7;">
+                <h2 style="color: #a855f7; margin-top: 0; font-size: 1.25rem; font-weight: 500; text-transform: uppercase;">Canal Vocal ÅØ.V.IA</h2>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 25px;">Traitement instantané de vos instructions à la voix.</p>
+                <button id="vocalBtn" class="btn-or" style="background: #a855f7; color: #0b0f17;">🎙️ Établir l'écoute active</button>
+                <div id="vocalStatus" style="margin-top: 15px; font-size: 0.8rem; color: #64748b; font-style: italic;">Le canal vocal est en attente sécurisée.</div>
+                <div id="vocalResult" style="margin-top: 10px; color: #4ade80; font-size: 0.85rem; font-weight: bold;"></div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- PAGE UNIQUE 5 : MON PROFIL SOUVERAIN (VITRINE VIDEO & FIABILITÉ) -->
+        <!-- ======================================================== -->
+        <div id="myProfilePage" class="view-content" style="display: none; flex-direction: column; align-items: center;">
+            <div class="container" style="border-color: #34d399; max-width: 420px; background: rgba(15, 23, 42, 0.85);">
+                <!-- ZONE DU CLIP VIDÉO PUBLICITAIRE BRUT DE 5 SECONDES -->
+                <div style="width: 100%; height: 180px; background: #060b13; border-radius: 12px; overflow: hidden; border: 1px solid rgba(200, 164, 78, 0.2); position: relative; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+                    <video id="myProfileVideo" width="100%" height="100%" autoplay loop muted playsinline style="object-fit: cover;">
+                        <source id="myVideoSource" src="" type="video/mp4">
+                        Votre navigateur ne supporte pas le lecteur vidéo.
+                    </video>
+                    <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(11, 15, 23, 0.8); padding: 4px 8px; border-radius: 5px; font-size: 0.6rem; color: #C8A44E; font-weight: bold; letter-spacing: 0.05rem; border: 1px solid rgba(200,164,78,0.3);">🎬 CLIP VITRINE 5S</span>
+                </div>
+
+                <h2 style="color: #34d399; margin-top: 0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.05rem;">Mon Espace Privé</h2>
+                <div style="text-align: left; background: rgba(6,11,19,0.6); padding: 20px; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05rem;">Acteur Identifié</div>
+                        <div id="myProfileName" style="font-size: 1.2rem; font-weight: bold; color: #C8A44E; margin-top: 2px;">Chargement...</div>
+                    </div>
+                    <!-- INDICE ET SCORE DE FIABILITÉ REQUIS -->
+                    <div>
+                        <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05rem;">Score de Fiabilité du Contact</div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                            <div id="myProfileScore" style="font-size: 1.6rem; font-weight: bold; color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.2);">- Pts</div>
+                            <span id="myProfileStatus" class="badge" style="background: #10b981; color: #060b13; font-weight: bold; font-size: 0.65rem;">-</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05rem;">Signature Unique (ID UUID)</div>
+                        <div id="myProfileUUID" style="font-size: 0.7rem; color: #64748b; font-family: monospace; word-break: break-all; margin-top: 4px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">-</div>
+                    </div>
+                </div>
+                <button class="btn-or" style="background-color: #f43f5e; color: white; margin-top: 25px;" onclick="deconnexionSouveraine()">🔒 Quitter l'espace sécurisé</button>
+            </div>
+        </div>
+
+    </div> <!-- Fermeture de main-layout -->
+
+    <!-- ======================================================== -->
+    <!-- MOTEURS DE LOGIQUE, DE NAVIGATION ET DE CARTOGRAPHIE     -->
+    <!-- ======================================================== -->
+    <script>
+          // --- DOUBLE DÉTECTEUR INTELLIGENT DE LIEN (FIX PARTAGE DE CONNEXION) ---
+        // Si le navigateur tourne sur localhost, on garde localhost, sinon il bascule sur 127.0.0.1
+        const BACKEND_URL = (window.location.hostname === "localhost") 
+            ? "http://localhost:8000" 
+            : "http://127.0.0.1:8000";
+
+        // --- FILTRE ANTI-INTRUSION SOUVERAIN (GARDIEN SILENCIEUX) ---
+        const USER_TOKEN = sessionStorage.getItem("nommora_token");
+        if (!USER_TOKEN) {
+            window.location.href = "connexion.html";
+        } else {
+            document.getElementById('appLayout').style.display = "flex";
+        }
+
+        function deconnexionSouveraine() {
+            sessionStorage.removeItem("nommora_token");
+            document.body.style.backgroundImage = "none";
+            window.location.href = "connexion.html";
+        }
+
+        // --- MOTEUR DE NAVIGATION INTERNE RESTAURÉ ---
+        function switchView(viewId, navId) {
+            // Masquer toutes les pages uniques
+            const views = document.querySelectorAll('.view-content');
+            views.forEach(v => v.style.display = 'none');
+            
+            // Forcer l'affichage de la page demandée
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.style.display = 'flex';
+                // Cas spécifique pour l'onglet combiné Cruise (Tableau de Bord + Carte)
+                if (viewId === 'cruisePage') {
+                    targetView.style.display = 'flex'; // Assure l'affichage en flex-row
+                    chargerStatistiquesMonde();
+                    initialiserCarteMondiale();
+                }
+            }
+
+            // Gérer le changement visuel de l'icône active dans la barre latérale
+            const icons = document.querySelectorAll('.nav-icon-box');
+            icons.forEach(i => i.classList.remove('active'));
+            if (navId) {
+                const activeIcon = document.getElementById(navId);
+                if (activeIcon) activeIcon.classList.add('active');
+            }
+
+            // Chargement automatique des données du profil souverain
+            if (viewId === 'myProfilePage') {
+                chargerDonneesMonProfil();
+            }
+        }
+
+        // --- BASCULE DU SOUS-MENU DE L'ONGLET STEAL (AVEC HOOKUP INCLUS) ---
+        function switchStealSubTab(targetBoxId, clickedBtnId) {
+            const subViews = document.querySelectorAll('.steal-sub-view');
+            subViews.forEach(v => v.style.display = 'none');
+            
+            document.getElementById(targetBoxId).style.display = 'flex';
+
+            const subButtons = ["subBtnHookup", "subBtnInit", "subBtnRel", "subBtnRev", "subBtnDisp", "subBtnChat", "subBtnCoffre"];
+            subButtons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.style.color = '#64748b'; // Éteint les autres boutons en gris
+            });
+
+            document.getElementById(clickedBtnId).style.color = '#C8A44E'; // Allume le bouton cliqué en Or
+        }
+
+        // --- LOGIQUE CARTOGRAPHIQUE ULTRA-STABLE SPÉCIALE DATA MOBILE ---
+        let carteMonde = null;
+
+        function initialiserCarteMondiale() {
+            if (carteMonde !== null) {
+                setTimeout(() => { carteMonde.invalidateSize(); }, 200);
+                return;
+            }
+
+            // Si le moteur Leaflet est bloqué par le partage de connexion, on force son injection immédiate
+            if (typeof L === 'undefined') {
+                console.log("⚡ Activation du protocole de secours réseau Nømmora...");
+                let scriptMap = document.createElement('script');
+                scriptMap.src = "https://cloudflare.com";
+                scriptMap.onload = () => {
+                    let styleMap = document.createElement('link');
+                    styleMap.rel = "stylesheet";
+                    styleMap.href = "https://cloudflare.com";
+                    document.head.appendChild(styleMap);
+                    setTimeout(() => { exécuterConstructionCarte(); }, 300);
+                };
+                document.head.appendChild(scriptMap);
+            } else {
+                exécuterConstructionCarte();
+            }
+        }
+
+        function exécuterConstructionCarte() {
+            // 1. Initialisation sur la Belgique (Latitude: 50.85, Longitude: 4.35) avec zoom 13 pour voir les rues
+            carteMonde = L.map('mapInfrastructure', { zoomControl: false }).setView([50.85, 4.35], 13);
+
+            // 2. Chargement du fond de carte Anthracite de luxe (CartoDB)
+            L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(carteMonde);
+
+            // 3. Configuration de l'icône Or ambré d'ÅØ au format exact
+            const iconeOrNommora = L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div style="background-color: #C8A44E; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 12px #C8A44E; border: 2px solid #0b0f17;"></div>',
+                iconSize:
+                iconAnchor
+            });
+
+            // 4. Incrustation du point lumineux sur la carte des rues
+            L.marker([50.85, 4.35], { icon: iconeOrNommora })
+                .addTo(carteMonde)
+                .bindPopup('<b style="color:#0b0f17; font-family:sans-serif; font-size:0.85rem;">Pacte Actif : 2,500.00 €</b>');
+        }
+
+        // --- EXTRACTEUR DE DONNÉES DU JETON AVEC VITRINE VIDÉO ET SCORE DE FIABILITÉ ---
+        function chargerDonneesMonProfil() {
+            try {
+                const base64Url = USER_TOKEN.split('.');
+                const base64 = base64Url[1].replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                const tokenData = JSON.parse(jsonPayload);
+                const userEmail = tokenData.sub;
+                const videoPlayer = document.getElementById('myProfileVideo');
+
+                if (userEmail === "alice@nommora.com") {
+                    document.getElementById('myProfileName').innerText = "Alice Cliente";
+                    document.getElementById('myProfileStatus').innerText = "CLIENT VÉRIFIÉ";
+                    document.getElementById('myProfileScore').innerText = "100 % Fiable";
+                    document.getElementById('myProfileScore').style.color = "#4ade80";
+                    document.getElementById('myProfileUUID').innerText = "9e5c4a3b-824f-43c7-95e5-7ac69fc65134";
+                    document.getElementById('myVideoSource').src = "https://mixkit.co";
+                } else if (userEmail === "marc@nommora.com") {
+                    document.getElementById('myProfileName').innerText = "Marc Prestataire";
+                    document.getElementById('myProfileStatus').innerText = "PRESTATAIRE CERTIFIÉ";
+                    document.getElementById('myProfileScore').innerText = "98.4 % Fiable";
+                    document.getElementById('myProfileScore').style.color = "#fbbf24";
+                    document.getElementById('myProfileUUID').innerText = "511481ef-824f-43c7-95e5-7ac69fc65134";
+                    document.getElementById('myVideoSource').src = "https://mixkit.co";
+                } else {
+                    document.getElementById('myProfileName').innerText = userEmail;
+                    document.getElementById('myProfileStatus').innerText = "ACTEUR ACTIF";
+                    document.getElementById('myProfileScore').innerText = "Nouveau Profil";
+                    if (videoPlayer) videoPlayer.style.display = "none";
+                }
+
+                if (videoPlayer && (userEmail === "alice@nommora.com" || userEmail === "marc@nommora.com")) {
+                    videoPlayer.load();
+                    videoPlayer.play().catch(e => console.log("Lecture auto bloquée."));
+                }
+            } catch (error) {
+                console.log("Erreur d'extraction du profil souverain.");
+            }
+        }
+
+        function declencherRechercheGlobale() {
+            const val = document.getElementById('globalSearchInput').value;
+            document.getElementById('cityInput').value = val;
+            switchView('searchPage', 'navSearch');
+            chercherPrestataire();
+        }
+
+        // --- ALGORITHMES DE RECHERCHE ET INTERACTION SERVEUR ---
+        async function chercherPrestataire() {
+            const ville = document.getElementById('cityInput').value;
+            const divResultats = document.getElementById('listeResultats');
+            try {
+                const response = await fetch(`${BACKEND_URL}/search?city=${ville}`);
+                const data = await response.json();
+                divResultats.innerHTML = "";
+                if (data.length === 0) { divResultats.innerHTML = "<p style='color:#64748b;'>L'horizon est vide.</p>"; return; }
+                data.forEach(p => {
+                    divResultats.innerHTML += `
+                        <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 12px 0;">
+                            <strong style="cursor:pointer; text-decoration:underline; color:#C8A44E;" onclick="afficherProfil('${p.id}')">${p.full_name} 👁️</strong><br>
+                            <small style="color:#94a3b8;">${p.status} | ${p.current_points} Pts | BCE: ${p.company_status || 'Individuel'}</small>
+                        </div>`;
+                });
+            } catch (error) { alert("Erreur réseau recherche."); }
+        }
+
+        async function afficherProfil(userId) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/providers/${userId}`);
+                const p = await response.json();
+                document.getElementById('profIdDisplay').innerText = `UUID : ${userId}`;
+                document.getElementById('profName').innerText = p.full_name;
+                document.getElementById('profStatus').innerText = p.status;
+                document.getElementById('profScore').innerText = `${p.current_points} Pts`;
+                document.getElementById('profileSection').style.display = "block";
+            } catch (error) { alert("Erreur profil."); }
+        }
+
+        document.getElementById('stealForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('stealMessage');
+            try {
+                const response = await fetch(`${BACKEND_URL}/steals`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${USER_TOKEN}` },
+                    body: JSON.stringify({
+                        provider_id: document.getElementById('stealProvider').value,
+                        amount: parseFloat(document.getElementById('stealAmount').value)
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    msgDiv.style.color = "#4ade80";
+                    msgDiv.innerHTML = `✅ Contrat sécurisé ! ID : <br><span style="color:#C8A44E; font-family:monospace;">${data.steal_id}</span>`;
+                } else { msgDiv.style.color = "#f87171"; msgDiv.innerText = "❌ Rejet de l'initiation."; }
+                msgDiv.style.display = "block";
+            } catch (error) { alert("Erreur serveur."); }
+        });
+
+        document.getElementById('releaseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('relMessage');
+            try {
+                const response = await fetch(`${BACKEND_URL}/steals/release`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transaction_id: document.getElementById('relStealId').value })
+                });
+                const data = await response.json();
+                if (response.ok) { msgDiv.style.color = "#10b981"; msgDiv.innerText = "✅ " + data.message; }
+                else { msgDiv.style.color = "#f87171"; msgDiv.innerText = "❌ Erreur de liquidation."; }
+                msgDiv.style.display = "block";
+            } catch (error) { alert("Erreur"); }
+        });
+
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('revMessage');
+            try {
+                const response = await fetch(`${BACKEND_URL}/steals/review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        transaction_id: document.getElementById('revStealId').value,
+                        rating: parseInt(document.getElementById('revRating').value),
+                        is_internal_platform: document.getElementById('revInternal').checked,
+                        is_full_parcours: document.getElementById('revFull').checked
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    msgDiv.style.color = "#f8fafc";
+                    msgDiv.innerHTML = `✅ Certifié. Impact calculé : <b>+${data.points_transmis} Pts</b>`;
+                } else { msgDiv.style.color = "#f87171"; msgDiv.innerText = "❌ Échec matrice."; }
+                msgDiv.style.display = "block";
+            } catch (error) { alert("Erreur"); }
+        });
+
+        document.getElementById('disputeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('dispMessage');
+            try {
+                const response = await fetch(`${BACKEND_URL}/disputes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        transaction_id: document.getElementById('dispTxId').value,
+                        reason: document.getElementById('dispReason').value
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) { msgDiv.style.color = "#f87171"; msgDiv.innerText = "✅ Procédure active. Flux bloqués."; }
+                else { msgDiv.style.color = "#f87171"; msgDiv.innerText = "❌ Option refusée."; }
+                msgDiv.style.display = "block";
+            } catch (error) { alert("Erreur"); }
+        });
+
+        document.getElementById('resolveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('resMessage');
+            try {
+                const response = await fetch(`${BACKEND_URL}/disputes/resolve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transaction_id: document.getElementById('resTxId').value })
+                });
+                if (response.ok) { msgDiv.style.color = "#a7f3d0"; msgDiv.innerText = "✅ Litige clos. Points restitués."; }
+                else { msgDiv.style.color = "#f87171"; msgDiv.innerText = "Erreur."; }
+                msgDiv.style.display = "block";
+            } catch (error) { alert("Erreur."); }
+        });
+
+        async function chargerMonHistorique() {
+            const userId = document.getElementById('myUserId').value;
+            const divListe = document.getElementById('monHistListe');
+            divListe.innerHTML = "";
+            try {
+                const response = await fetch(`${BACKEND_URL}/users/${userId}/transactions`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${USER_TOKEN}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    if (data.length === 0) { divListe.innerHTML = "<p style='color:#64748b;'>Aucune affaire.</p>"; return; }
+                    data.forEach(t => {
+                        divListe.innerHTML += `
+                            <div style="background: #0b0f17; padding:12px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px;">
+                                <b style="color:#10b981;">${t.amount} €</b> [STATUT: ${t.status.toUpperCase()}]<br>
+                                <span style="font-size:0.7rem; color:#64748b; font-family:monospace;">ID: ${t.id}</span>
+                            </div>`;
+                    });
+                } else { divListe.innerHTML = `<p style="color:#f87171;">❌ Accès refusé : ${data.detail}</p>`; }
+            } catch (error) { alert("Erreur"); }
+        }
+
+        async function ouvrirCanalDiscussion() {
+            const stealId = document.getElementById('chatStealId').value;
+            const box = document.getElementById('chatBox');
+            const form = document.getElementById('chatForm');
+            box.innerHTML = "";
+            try {
+                const response = await fetch(`${BACKEND_URL}/steals/${stealId}/messages`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${USER_TOKEN}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    box.style.display = "flex"; form.style.display = "block";
+                    if (data.length === 0) { box.innerHTML = "<p style='color:#64748b; text-align:center;'>Aucun message.</p>"; return; }
+                    data.forEach(m => {
+                        box.innerHTML += `<div style="padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.02);"><b style="color:#C8A44E;">${m.sender_name.toUpperCase()} :</b> <span style="color:#f8fafc;">${m.message_text}</span></div>`;
+                    });
+                    box.scrollTop = box.scrollHeight;
+                } else { alert("Canal indéchiffrable pour votre session."); }
+            } catch (error) { alert("Erreur."); }
+        }
+
+        document.getElementById('chatForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const stealId = document.getElementById('chatStealId').value;
+            const input = document.getElementById('chatInput');
+            try {
+                const response = await fetch(`${BACKEND_URL}/steals/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${USER_TOKEN}` },
+                    body: JSON.stringify({ steal_id: stealId, message_text: input.value })
+                });
+                if (response.ok) { input.value = ""; ouvrirCanalDiscussion(); }
+                else { alert("Échec."); }
+            } catch (error) { alert("Erreur."); }
+        });
+
+        async function chargerStatistiquesMonde() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/world/stats`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${USER_TOKEN}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('statSecured').innerText = data.total_secured_funds.toFixed(2) + " €";
+                    document.getElementById('statReleased').innerText = data.total_released_funds.toFixed(2) + " €";
+                    document.getElementById('statSteals').innerText = data.total_steals_count;
+                    document.getElementById('statUsers').innerText = data.total_users_count;
+                }
+            } catch (error) { console.log("Erreur synchronisation."); }
+        }
+
+        // --- CONTRÔLE VOCAL NATIF ÅØ.V.IA ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            const vocalBtn = document.getElementById('vocalBtn');
+            const vocalStatus = document.getElementById('vocalStatus');
+            const vocalResult = document.getElementById('vocalResult');
+
+            function parler(texte) {
+                const replique = new SpeechSynthesisUtterance(texte);
+                replique.lang = 'fr-FR'; replique.pitch = 0.9;
+                window.speechSynthesis.speak(replique);
+            }
+
+            vocalBtn.addEventListener('click', () => { recognition.start(); vocalStatus.innerHTML = "<span style='color:#f43f5e;'>[ ÉCOUTE ACTIVE... ]</span>"; });
+            
+            recognition.onresult = async (event) => {
+                const phraseParlee = event.results.transcript;
+                vocalStatus.innerHTML = `💬 TRANSACTION : "${phraseParlee.toUpperCase()}"`;
+                try {
+                    const response = await fetch(`${BACKEND_URL}/ai/voice-command`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: phraseParlee })
+                    });
+                    const data = await response.json();
+                    parler(data.reply);
+                    vocalResult.style.display = "block"; vocalResult.innerText = "🔮 IA : " + data.reply;
+                    
+                    if (data.action === "search") { 
+                        switchView('searchPage', 'navSearch');
+                        document.getElementById('cityInput').value = data.target; 
+                        chercherPrestataire(); 
+                    } else if (data.action === "steal") { 
+                        switchView('stealPage', 'navSteal');
+                        document.getElementById('stealAmount').value = data.amount; 
+                    }
+                } catch (error) { alert("IA Déconnectée."); }
+            };
+        }
+    </script>
+</body>
+</html>

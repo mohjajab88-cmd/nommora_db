@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NØMMORA — Inscription</title>
+    <style>
+        /* ÉCRAN DE DÉMARRAGE BRUT (PHOTO SEULE) */
+        #splashScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('fond.jpg');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+
+        /* STYLE DE L'ESPACE */
+        body {
+            background: linear-gradient(135deg, #060e19 0%, #0B1A2D 60%, #172537 100%) !important;
+            background-attachment: fixed !important;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 60px 20px; min-height: 100vh; margin: 0; box-sizing: border-box;
+        }
+        .main-content {
+            opacity: 0; display: flex; flex-direction: column; align-items: center; width: 100%;
+            transition: opacity 0.8s ease-in;
+        }
+        .logo-ao {
+            font-size: 4rem; font-weight: 200; letter-spacing: 0.5rem; color: #C8A44E;
+            text-shadow: 0 0 20px rgba(200, 164, 78, 0.4); margin: 0 0 5px 0;
+        }
+        .tagline {
+            font-size: 0.75rem; text-transform: uppercase; color: #94a3b8;
+            margin: 0 0 40px 0; letter-spacing: 0.2rem;
+        }
+        .container {
+            background-color: rgba(15, 23, 42, 0.85); padding: 2rem; border-radius: 1.5rem;
+            border: 1px solid rgba(200, 164, 78, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            width: 100%; max-width: 400px; text-align: center;
+            backdrop-filter: backdrop-blur(10px); -webkit-backdrop-filter: backdrop-blur(10px);
+        }
+        .or-text { color: #C8A44E; margin-top: 0; }
+        .btn-or {
+            background-color: #C8A44E; color: #0B1A2D; border: none; padding: 0.8rem;
+            width: 100%; border-radius: 0.8rem; font-weight: bold; cursor: pointer;
+            margin-top: 1rem; transition: 0.2s;
+        }
+        .btn-or:hover { background-color: #b08f40; }
+        input, select {
+            width: 100%; padding: 0.8rem; margin: 0.5rem 0; border-radius: 0.8rem;
+            border: 1px solid #334155; background: #0B1A2D; color: white; box-sizing: border-box;
+        }
+        .link-nav {
+            margin-top: 25px; color: #94a3b8; font-size: 0.9rem; text-decoration: none; cursor: pointer; display: block;
+        }
+        .link-nav:hover { color: #C8A44E; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="splashScreen"></div>
+
+    <div id="appContent" class="main-content">
+        
+        <h1 class="logo-ao">ÅØ</h1>
+        <div class="tagline">NØMMORA — DEVIENT LE CONTACTE</div>
+
+        <div class="container">
+            <h2 class="or-text">👁️ NØMMORA - Inscription</h2>
+            <form id="registerForm">
+                <select id="regType" onchange="toggleCompanyFields()">
+                    <option value="prestataire">Prestataire Individuel / Artisan</option>
+                    <option value="magasin">Magasin / Fournisseur (Points x10)</option>
+                </select>
+                <input type="text" id="regName" placeholder="Nom complet ou Nom de la Société" required>
+                <input type="email" id="regEmail" placeholder="Adresse Email" required>
+                <input type="password" id="regPassword" placeholder="Mot de passe" required>
+                <input type="text" id="regCity" placeholder="Ville (ex: Bruxelles)" required>
+                
+                <div id="companyFields" style="display: none; border-top: 1px solid rgba(200, 164, 78, 0.2); margin-top: 10px; padding-top: 10px;">
+                    <input type="text" id="regVat" placeholder="Numéro de TVA (ex: BE0123456789)">
+                    <input type="text" id="regPhone" placeholder="Téléphone Professionnel">
+                    <input type="text" id="regAddress" placeholder="Adresse complète (Siège Social)">
+                </div>
+
+                <button type="submit" class="btn-or">Créer le compte vérifié</button>
+            </form>
+            <div id="regMessage" style="margin-top: 15px; font-weight: bold; display: none;"></div>
+            
+            <!-- LIEN DEMANDÉ : PASSE SUR LA PAGE D'AUTHENTIFICATION -->
+            <a href="connexion.html" class="link-nav">Déjà inscrit ? Connexion</a>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "http://127.0.0.1:8000";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.opacity = '0';
+                document.getElementById('splashScreen').style.visibility = 'hidden';
+                document.getElementById('appContent').style.opacity = '1';
+            }, 3000);
+        });
+
+        function toggleCompanyFields() {
+            const type = document.getElementById('regType').value;
+            const fields = document.getElementById('companyFields');
+            fields.style.display = (type === 'magasin') ? 'block' : 'none';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('regMessage');
+            msgDiv.style.display = "none";
+            
+            const payload = {
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                full_name: document.getElementById('regName').value,
+                city: document.getElementById('regCity').value,
+                user_type: document.getElementById('regType').value,
+                vat_number: document.getElementById('regVat').value || null,
+                phone_number: document.getElementById('regPhone').value || null,
+                street_address: document.getElementById('regAddress').value || null
+            };   
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgDiv.style.color = "#4ade80";
+                    msgDiv.innerText = "✅ Compte créé avec succès !";
+                    setTimeout(() => { window.location.href = "connexion.html"; }, 2000);
+                } else {
+                    msgDiv.style.color = "#f87171";
+                    msgDiv.innerText = "❌ " + (data.detail || "Erreur d'inscription");
+                }
+                msgDiv.style.display = "block";
+            } catch (error) {
+                msgDiv.style.color = "#fbbf24"; msgDiv.innerText = "⚠️ Serveur FastAPI éteint."; msgDiv.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
