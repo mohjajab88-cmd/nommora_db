@@ -10,4 +10,4 @@ tenacity
 redis
 sentry-sdk
 httpx
-gunicorngunicorn
+gunicorn
