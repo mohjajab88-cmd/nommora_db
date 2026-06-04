@@ -9,4 +9,5 @@ slowapi
 tenacity
 redis
 sentry-sdk
-httpxgunicorn
+httpx
+gunicorngunicorn
