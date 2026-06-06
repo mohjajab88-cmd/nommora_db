@@ -11,3 +11,4 @@ redis
 sentry-sdk
 httpx
 gunicorn
+legacy-cgi
