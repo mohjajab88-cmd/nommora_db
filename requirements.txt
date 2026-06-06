@@ -12,3 +12,4 @@ sentry-sdk
 httpx
 gunicorn
 legacy-cgi
+deep-translator
