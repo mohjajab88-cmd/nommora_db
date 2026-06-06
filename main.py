@@ -17,9 +17,10 @@ from slowapi.errors import RateLimitExceeded
 import redis.asyncio as redis
 from fastapi import Request
 from fastapi.responses import RedirectResponse
+import os 
 
 # --- CONFIGURATION DE LA BASE ---
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/nommora_db"
+DATABASE_URL = os.getenv("postgresql://postgres:postgres@localhost:5432/nommora_db")
 SECRET_KEY = "NOMMORA_SUPER_SECRET_KEY_MAC_I5" 
 ALGORITHM = "HS256"
 
