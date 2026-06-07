@@ -17,11 +17,18 @@ from slowapi.errors import RateLimitExceeded
 import redis.asyncio as redis
 from fastapi import Request
 from fastapi.responses import RedirectResponse
-import os 
+import os
 
-# --- CONFIGURATION DE LA BASE ---
 DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL and "://supabase.com" in DATABASE_URL:
+
+if not DATABASE_URL:
+    DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/nommora_db"
+elif "db.uwccfiymlskdvbacpwpp.supabase.co" in DATABASE_URL:
+
+    DATABASE_URL = DATABASE_URL.replace(
+        "db.uwccfiymlskdvbacpwpp.supabase.co:5432", 
+        "://supabase.com"
+    )
     if "?" in DATABASE_URL:
         DATABASE_URL += "&prepared_statement_cache_size=0"
     else:
