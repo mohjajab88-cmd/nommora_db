@@ -20,7 +20,7 @@ from fastapi.responses import RedirectResponse
 import os 
 
 # --- CONFIGURATION DE LA BASE ---
-DATABASE_URL = os.getenv("postgresql://postgres:postgres@localhost:5432/nommora_db")
+DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = "NOMMORA_SUPER_SECRET_KEY_MAC_I5" 
 ALGORITHM = "HS256"
 
