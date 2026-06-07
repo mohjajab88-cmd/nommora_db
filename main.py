@@ -21,6 +21,12 @@ import os
 
 # --- CONFIGURATION DE LA BASE ---
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL and "://supabase.com" in DATABASE_URL:
+    if "?" in DATABASE_URL:
+        DATABASE_URL += "&prepared_statement_cache_size=0"
+    else:
+        DATABASE_URL += "?prepared_statement_cache_size=0"
+
 SECRET_KEY = "NOMMORA_SUPER_SECRET_KEY_MAC_I5" 
 ALGORITHM = "HS256"
 
