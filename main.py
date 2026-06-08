@@ -21,12 +21,16 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASE_URL = "postgresql://postgres.uwccfiymlskdvbacpwpp:milmort4041@aws-1-eu-central-1.pooler.supabase.com:6543/postgres"
-
-if "?" in DATABASE_URL:
-    DATABASE_URL += "&prepared_statement_cache_size=0"
+if not DATABASE_URL:
+    DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/nommora_db"
 else:
-    DATABASE_URL += "?prepared_statement_cache_size=0"
+    if "[YOUR-PASSWORD]" in DATABASE_URL:
+        DATABASE_URL = DATABASE_URL.replace("[YOUR-PASSWORD]", "METTEZ_VOTRE_VRAI_MOT_DE_PASSE_ICI")
+    
+    if "?" in DATABASE_URL:
+        DATABASE_URL += "&prepared_statement_cache_size=0"
+    else:
+        DATABASE_URL += "?prepared_statement_cache_size=0"
 
 SECRET_KEY = "NOMMORA_SUPER_SECRET_KEY_MAC_I5" 
 ALGORITHM = "HS256"
