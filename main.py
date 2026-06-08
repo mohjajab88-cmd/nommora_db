@@ -19,8 +19,7 @@ from fastapi import Request
 from fastapi.responses import RedirectResponse
 import os
 
-DATABASE_URL = "postgresql://postgres.uwccfiymlskdvbacpwpp:Milmort4041@://supabase.com"
-
+DATABASE_URL = "postgresql://postgres.uwccfiymlskdvbacpwpp:Milmort4041@aws-1-eu-central-1.pooler.supabase.com:6543/postgres"
 if "?" in DATABASE_URL:
     DATABASE_URL += "&prepared_statement_cache_size=0"
 else:
