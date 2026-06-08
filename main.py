@@ -19,18 +19,12 @@ from fastapi import Request
 from fastapi.responses import RedirectResponse
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql://postgres.uwccfiymlskdvbacpwpp:Milmort4041@://supabase.com"
 
-if not DATABASE_URL:
-    DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/nommora_db"
+if "?" in DATABASE_URL:
+    DATABASE_URL += "&prepared_statement_cache_size=0"
 else:
-    if "[YOUR-PASSWORD]" in DATABASE_URL:
-        DATABASE_URL = DATABASE_URL.replace(Milmort4041)
-    
-    if "?" in DATABASE_URL:
-        DATABASE_URL += "&prepared_statement_cache_size=0"
-    else:
-        DATABASE_URL += "?prepared_statement_cache_size=0"
+    DATABASE_URL += "?prepared_statement_cache_size=0"
 
 SECRET_KEY = "NOMMORA_SUPER_SECRET_KEY_MAC_I5" 
 ALGORITHM = "HS256"
