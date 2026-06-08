@@ -25,7 +25,7 @@ if not DATABASE_URL:
     DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/nommora_db"
 else:
     if "[YOUR-PASSWORD]" in DATABASE_URL:
-        DATABASE_URL = DATABASE_URL.replace("[YOUR-PASSWORD]", "METTEZ_VOTRE_VRAI_MOT_DE_PASSE_ICI")
+        DATABASE_URL = DATABASE_URL.replace(Milmort4041)
     
     if "?" in DATABASE_URL:
         DATABASE_URL += "&prepared_statement_cache_size=0"
