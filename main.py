@@ -21,7 +21,7 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASE_URL = "postgresql://postgres:milmort4041@://supabase.com"
+DATABASE_URL = "postgresql://postgres.uwccfiymlskdvbacpwpp:milmort4041@aws-1-eu-central-1.pooler.supabase.com:6543/postgres"
 
 if "?" in DATABASE_URL:
     DATABASE_URL += "&prepared_statement_cache_size=0"
