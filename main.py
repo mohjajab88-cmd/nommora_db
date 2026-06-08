@@ -21,18 +21,12 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if not DATABASE_URL:
-    DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/nommora_db"
-elif "db.uwccfiymlskdvbacpwpp.supabase.co" in DATABASE_URL:
-    # L'adresse ci-dessous est la seule et unique adresse IPv4 valide pour votre serveur en Europe Centrale
-    DATABASE_URL = DATABASE_URL.replace(
-        "db.uwccfiymlskdvbacpwpp.supabase.co:5432", 
-        "://supabase.com"
-    )
-    if "?" in DATABASE_URL:
-        DATABASE_URL += "&prepared_statement_cache_size=0"
-    else:
-        DATABASE_URL += "?prepared_statement_cache_size=0"
+DATABASE_URL = "postgresql://postgres:milmort4041@://supabase.com"
+
+if "?" in DATABASE_URL:
+    DATABASE_URL += "&prepared_statement_cache_size=0"
+else:
+    DATABASE_URL += "?prepared_statement_cache_size=0"
 
 SECRET_KEY = "NOMMORA_SUPER_SECRET_KEY_MAC_I5" 
 ALGORITHM = "HS256"
